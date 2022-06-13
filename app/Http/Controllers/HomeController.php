@@ -2,27 +2,32 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Empleado;
+use App\Models\Usuario;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
 {
     /**
-     * Create a new controller instance.
+     * Display a listing of the resource.
      *
-     * @return void
+     * @return \Illuminate\Http\Response
      */
-    public function __construct()
+    public function index(Request $request)
     {
-        $this->middleware('auth');
-    }
+        $empleados = DB::table('registro_de_empleados')
+            ->join('users','users.id','=','registro_de_empleados.usuario')
+            ->select('registro_de_empleados.cod_empleado',
+                'users.name AS usuario',
+                'registro_de_empleados.nombre_empleado',
+                'registro_de_empleados.numero_telefono',
+                'registro_de_empleados.correo',
+                'registro_de_empleados.direccion',
+                'registro_de_empleados.departamento')
+            ->orderBy('registro_de_empleados.cod_empleado')
+            ->paginate(20);
 
-    /**
-     * Show the application dashboard.
-     *
-     * @return \Illuminate\Contracts\Support\Renderable
-     */
-    public function index()
-    {
-        return view('home');
+        return view ('home', compact('empleados'));
     }
 }
